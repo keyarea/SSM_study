@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/cache http://www.springframework.org/schema/cache/spring-cache.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd http://www.springframework.org/schema/aop https://www.springframework.org/schema/aop/spring-aop.xsd http://www.springframework.org/schema/mvc https://www.springframework.org/schema/mvc/spring-mvc.xsd">
+
+    <!-- 包扫描,Spring除了控制器不需要，其他的业务组件都要，包括dao，包括service -->
+    <context:component-scan base-package="net.qipo">
+        <!-- 扫描排除，不需要禁用默认规则 -->
+        <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+    </context:component-scan>
+
+    <!-- 导入外部配置文件 -->
+    <context:property-placeholder location="classpath:dbConfig.properties"/>
+
+    <!-- 配置数据源 -->
+    <bean class="com.mchange.v2.c3p0.ComboPooledDataSource" id="dataSource">
+        <property name="user" value="${jdbc.user}"/>
+        <property name="jdbcUrl" value="${jdbc.jdbcUrl}"/>
+        <property name="driverClass" value="${jdbc.driverClass}"/>
+        <property name="password" value="${jdbc.password}"/>
+        <property name="maxPoolSize" value="${jdbc.maxPoolSize}"/>
+        <property name="minPoolSize" value="${jdbc.minPoolSize}"/>
+    </bean>
+
+    <!-- 配置JDBCTemplate操作数据库 。pass -->
+    <!-- 配置使用MyBatis操作数据库 -->
+
+    <!-- 配置事物控制；配置事物管理器，让它控制数据源中的连接 -->
+    <bean id="manager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
+    <!-- 基于xml配置，配置事物；哪些方法切入事物还要写切入点表达式 -->
+    <aop:config>
+        <!-- 配置切入点表达式 -->
+        <aop:pointcut id="txPoint" expression="execution(* net.qipo.service.*.*(..))"/>
+        <aop:advisor advice-ref="myTx" pointcut-ref="txPoint"/>
+    </aop:config>
+
+    <!-- 配置事物增强、事物属性、事物建议    -->
+    <!-- transaction-manager="manager": 指定要配置的事物管理器的id -->
+    <tx:advice id="myTx" transaction-manager="manager">
+        <!-- 配置事物属性 -->
+        <tx:attributes>
+            <tx:method name="*" rollback-for="java.lang.Exception"/>
+            <tx:method name="get*" read-only="true"/>
+        </tx:attributes>
+    </tx:advice>
+
+
+</beans>
