@@ -1,6 +1,9 @@
 package net.qipo.dao;
 
+import net.qipo.bean.Teacher;
+
+
 public interface TeacherDao {
 
-    public void getTeacherById(Integer id);
+    public Teacher getTeacherById(Integer id);
 }
