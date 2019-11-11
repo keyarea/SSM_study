@@ -15,5 +15,6 @@
 <h1>hello</h1>
 
 <a href="getTeacher?id=1">查询</a>
+<a href="getAll">查询所有员工</a>
 </body>
 </html>

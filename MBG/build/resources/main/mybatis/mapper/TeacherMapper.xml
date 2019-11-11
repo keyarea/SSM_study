@@ -13,6 +13,22 @@
     <result column="address" jdbcType="VARCHAR" property="address" />
     <result column="birth_date" jdbcType="DATE" property="birthDate" />
   </resultMap>
+
+  <!--     List<Teacher> getTeachers(); -->
+  <select id="getTeachers" resultMap="BaseResultMap">
+    SELECT * FROM t_teacher
+  </select>
+
+
+  <!--     void insertBatch(List<Teacher> list); -->
+  <insert id="insertBatch">
+    INSERT INTO t_teacher(teacherName, class_name)
+    VALUES 
+    <foreach collection="teachers" separator="," item="t">
+      (#{t.teachername}, #{t.className})
+    </foreach>
+  </insert>
+
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
     <!--
       WARNING - @mbg.generated
